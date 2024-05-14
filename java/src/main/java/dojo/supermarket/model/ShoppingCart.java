@@ -32,10 +32,6 @@ public class ShoppingCart {
         return items.stream().filter(i -> i.getProduct().equals(product)).findFirst().orElse(null);
     }
 
-    Map<Product, Double> productQuantities() {
-        return Collections.unmodifiableMap(productQuantities);
-    }
-
     public void addItemQuantity(Product product, double quantity) {
 
         double newQuantity = quantity;
@@ -46,7 +42,6 @@ public class ShoppingCart {
         }
 
         items.add(new ProductQuantity(product, newQuantity));
-
     }
 
     void handleOffers(Receipt receipt, Map<Product, Offer> offers, SupermarketCatalog catalog) {
