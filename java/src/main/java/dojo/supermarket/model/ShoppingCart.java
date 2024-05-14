@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ShoppingCart {
 
@@ -17,6 +18,14 @@ public class ShoppingCart {
 
     void addItem(Product product) {
         addItemQuantity(product, 1.0);
+    }
+
+    List<Product> getProducts() {
+        return items.stream().map(ProductQuantity::getProduct).collect(Collectors.toList());
+    }
+
+    boolean hasProduct(Product product) {
+        return items.stream().anyMatch(i -> i.getProduct().equals(product));
     }
 
     Map<Product, Double> productQuantities() {
