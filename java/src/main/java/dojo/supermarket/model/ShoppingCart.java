@@ -58,34 +58,26 @@ public class ShoppingCart {
             int quantityAsInt = (int) quantity;
             Discount discount = null;
 
-            int x = 1;
-            if (offer.offerType == SpecialOfferType.THREE_FOR_TWO) {
-                x = 3;
-                if (quantityAsInt > 2) {
+            int x = offer.offerType.getAmount();
+            if (offer.offerType == SpecialOfferType.THREE_FOR_TWO && isCanDiscount(quantityAsInt, x)) {
                     double discountAmount = quantity * unitPrice - (((quantityAsInt / x) * 2 * unitPrice) + quantityAsInt % 3 * unitPrice);
                     discount = new Discount(product, "3 for 2", -discountAmount);
-                }
             }
 
-            if (offer.offerType == SpecialOfferType.TWO_FOR_AMOUNT) {
-                x = 2;
-                if (quantityAsInt >= 2) {
+            if (offer.offerType == SpecialOfferType.TWO_FOR_AMOUNT && isCanDiscount(quantityAsInt, x)){
+//                x = 2;
                     double total = offer.argument * (quantityAsInt / x) + quantityAsInt % 2 * unitPrice;
                     double discountN = unitPrice * quantity - total;
                     discount = new Discount(product, "2 for " + offer.argument, -discountN);
-                }
-
             }
 
-            if (offer.offerType == SpecialOfferType.FIVE_FOR_AMOUNT) {
-                x = 5;
-                if (quantityAsInt >= 5) {
+            if (offer.offerType == SpecialOfferType.FIVE_FOR_AMOUNT && isCanDiscount(quantityAsInt, x)) {
+//                x = 5;
                     double discountTotal = unitPrice * quantity - (offer.argument * (quantityAsInt / x) + quantityAsInt % 5 * unitPrice);
                     discount = new Discount(product, x + " for " + offer.argument, -discountTotal);
-                }
             }
 
-            if (offer.offerType == SpecialOfferType.TEN_PERCENT_DISCOUNT) {
+            if (offer.offerType == SpecialOfferType.TEN_PERCENT_DISCOUNT && isCanDiscount(quantityAsInt, x)) {
                 discount = new Discount(product, offer.argument + "% off", -quantity * unitPrice * offer.argument / 100.0);
             }
 
@@ -93,5 +85,9 @@ public class ShoppingCart {
                 receipt.addDiscount(discount);
 
         }
+    }
+
+    private boolean isCanDiscount(int quantityAsInt, int amount) {
+        return quantityAsInt >= amount;
     }
 }
