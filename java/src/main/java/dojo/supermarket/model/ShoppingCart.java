@@ -34,7 +34,7 @@ public class ShoppingCart {
     public void addItemQuantity(Product product, double quantity) {
 
         double newQuantity = quantity;
-        if(hasProduct(product)) {
+        if (hasProduct(product)) {
             ProductQuantity productQuantity = getProductQuantity(product);
             newQuantity += productQuantity.getQuantity();
             items.remove(productQuantity);
@@ -58,27 +58,23 @@ public class ShoppingCart {
             int quantityAsInt = (int) quantity;
             Discount discount = null;
 
-            int x = offer.offerType.getAmount();
-            if (offer.offerType == SpecialOfferType.THREE_FOR_TWO && isCanDiscount(quantityAsInt, x)) {
-                    double discountAmount = quantity * unitPrice - (((quantityAsInt / x) * 2 * unitPrice) + quantityAsInt % 3 * unitPrice);
-                    discount = new Discount(product, "3 for 2", -discountAmount);
+            SpecialOfferType offerType = offer.offerType;
+            int x = offerType.getAmount();
+
+            if (isCanDiscount(quantityAsInt, offerType, SpecialOfferType.THREE_FOR_TWO)) {
+                discount = new Discount(product, "3 for 2", offerType.getDiscountAmount(unitPrice, quantity, 0));
             }
 
-            if (offer.offerType == SpecialOfferType.TWO_FOR_AMOUNT && isCanDiscount(quantityAsInt, x)){
-//                x = 2;
-                    double total = offer.argument * (quantityAsInt / x) + quantityAsInt % 2 * unitPrice;
-                    double discountN = unitPrice * quantity - total;
-                    discount = new Discount(product, "2 for " + offer.argument, -discountN);
+            if (isCanDiscount(quantityAsInt, offerType, SpecialOfferType.TWO_FOR_AMOUNT)) {
+                discount = new Discount(product, "2 for " + offer.argument, offerType.getDiscountAmount(unitPrice, quantity, offer.argument));
             }
 
-            if (offer.offerType == SpecialOfferType.FIVE_FOR_AMOUNT && isCanDiscount(quantityAsInt, x)) {
-//                x = 5;
-                    double discountTotal = unitPrice * quantity - (offer.argument * (quantityAsInt / x) + quantityAsInt % 5 * unitPrice);
-                    discount = new Discount(product, x + " for " + offer.argument, -discountTotal);
+            if (isCanDiscount(quantityAsInt, offerType, SpecialOfferType.FIVE_FOR_AMOUNT)) {
+                discount = new Discount(product, x + " for " + offer.argument, offerType.getDiscountAmount(unitPrice, quantity, offer.argument));
             }
 
-            if (offer.offerType == SpecialOfferType.TEN_PERCENT_DISCOUNT && isCanDiscount(quantityAsInt, x)) {
-                discount = new Discount(product, offer.argument + "% off", -quantity * unitPrice * offer.argument / 100.0);
+            if (isCanDiscount(quantityAsInt, offerType, SpecialOfferType.TEN_PERCENT_DISCOUNT)) {
+                discount = new Discount(product, offerType.getDescription(offer.argument), offerType.getDiscountAmount(unitPrice, quantity, offer.argument));
             }
 
             if (discount != null)
@@ -87,7 +83,10 @@ public class ShoppingCart {
         }
     }
 
-    private boolean isCanDiscount(int quantityAsInt, int amount) {
-        return quantityAsInt >= amount;
+    private boolean isCanDiscount(int quantityAsInt, SpecialOfferType productOfferType, SpecialOfferType offerType) {
+        if (productOfferType == offerType)
+            return quantityAsInt >= productOfferType.getAmount();
+
+        return false;
     }
 }
