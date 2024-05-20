@@ -39,46 +39,29 @@ public class ShoppingCart {
         for (ProductQuantity productQuantity : getItems()) {
 
             Product product = productQuantity.getProduct();
-            double quantity = productQuantity.getQuantity();
-
             if (!offers.containsKey(product)) {
                 continue;
             }
 
+
             Offer offer = offers.get(product);
-            double unitPrice = catalog.getUnitPrice(product);
-            int quantityAsInt = (int) quantity;
-            Discount discount = null;
-
+            double quantity = productQuantity.getQuantity();
             SpecialOfferType offerType = offer.offerType;
-            int x = offerType.getAmount();
 
-            if (isCanDiscount(quantityAsInt, offerType, SpecialOfferType.THREE_FOR_TWO)) {
-                discount = new Discount(product, "3 for 2", offerType.getDiscountAmount(unitPrice, quantity, 0));
-            }
+            if (isCanDiscount(quantity, offerType)) {
 
-            if (isCanDiscount(quantityAsInt, offerType, SpecialOfferType.TWO_FOR_AMOUNT)) {
-                discount = new Discount(product, "2 for " + offer.argument, offerType.getDiscountAmount(unitPrice, quantity, offer.argument));
-            }
+                double unitPrice = catalog.getUnitPrice(product);
+                double discountAmount = offerType.getDiscountAmount(unitPrice, quantity, offer.argument);
 
-            if (isCanDiscount(quantityAsInt, offerType, SpecialOfferType.FIVE_FOR_AMOUNT)) {
-                discount = new Discount(product, x + " for " + offer.argument, offerType.getDiscountAmount(unitPrice, quantity, offer.argument));
-            }
-
-            if (isCanDiscount(quantityAsInt, offerType, SpecialOfferType.TEN_PERCENT_DISCOUNT)) {
-                discount = new Discount(product, offerType.getDescription(offer.argument), offerType.getDiscountAmount(unitPrice, quantity, offer.argument));
-            }
-
-            if (discount != null)
+                Discount discount = new Discount(product, offerType.getDescription(offer.argument), discountAmount);
                 receipt.addDiscount(discount);
+            }
 
         }
     }
 
-    private boolean isCanDiscount(int quantityAsInt, SpecialOfferType productOfferType, SpecialOfferType offerType) {
-        if (productOfferType == offerType)
-            return quantityAsInt >= productOfferType.getAmount();
-
-        return false;
+    private boolean isCanDiscount(double quantity, SpecialOfferType productOfferType) {
+        int quantityAsInt = (int) quantity;
+        return quantityAsInt >= productOfferType.getAmount();
     }
 }
