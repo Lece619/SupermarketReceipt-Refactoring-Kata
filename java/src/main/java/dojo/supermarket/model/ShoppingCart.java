@@ -15,14 +15,6 @@ public class ShoppingCart {
         return Collections.unmodifiableList(items);
     }
 
-    void addItem(Product product) {
-        addItemQuantity(product, 1.0);
-    }
-
-    List<Product> getProducts() {
-        return items.stream().map(ProductQuantity::getProduct).collect(Collectors.toList());
-    }
-
     boolean hasProduct(Product product) {
         return items.stream().anyMatch(i -> i.getProduct().equals(product));
     }
